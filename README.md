@@ -5,9 +5,11 @@ sources go through ETL into records, a graph and vectors. Configurable workflows
 answer from those stores with citations, a configurable UI presents them, and one set
 of observability, provenance and monitoring runs under all of it.
 
-A use case is a pack: configuration, not a fork. The first two packs are `maintenance`
-(manuals, parts diagrams linked to parts lists, reviewed procedure drafts) and
-`research` (cited retrieval over a document corpus).
+The platform is generic. It is a catalogue of building blocks with typed contracts,
+and it ships no use case. A use case is a pack: configuration that selects and wires
+blocks for a client. Two reference configurations are kept as examples and acceptance
+tests: `maintenance` (manuals, parts diagrams linked to parts lists, reviewed procedure
+drafts) and `research` (cited retrieval over a document corpus).
 
 ## Status
 
@@ -15,7 +17,7 @@ Design only. No code exists yet.
 
 | Document | What it holds |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | The architecture, version 0.3 |
+| [docs/architecture.md](docs/architecture.md) | The architecture, version 0.4 |
 | [docs/open-questions.md](docs/open-questions.md) | Rulings made so far and the questions still open |
 | [docs/kickoff-bootstrap.md](docs/kickoff-bootstrap.md) | The Claude Code prompt that starts the build |
 

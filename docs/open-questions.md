@@ -23,16 +23,22 @@ number. Numbering is stable: never renumber, and add new questions at the end.
 - **Q6. Meaning of dual use.** **Resolved 2026-11-21.** Civil plus defence customers.
 - **Q7. Graph and vector store.** **Resolved 2026-11-21.** "Both as needed":
   PostgreSQL-only and Neo4j, behind one interface.
-- **Q8. First vertical slice.** **Resolved 2026-11-21.** The `maintenance` pack.
+- **Q8. First vertical slice.** **Resolved 2026-11-21.** The `maintenance` pack. Read with
+  Q21: it is the first reference configuration, kept under `examples/`, not part of the
+  platform.
 - **Q9. Repository.** **Resolved 2026-11-21.** `teamworxAI/si`.
+- **Q21. Generic or use-case first?** **Resolved 2026-11-21.** Generic platform. The
+  ingredients are building blocks, configured for each client and use case. Nothing is
+  baked in.
 
 ## Open
 
-- **Q10. Which adapter does slice-one use?** **A10:** PostgreSQL-only (adapter A),
-  because it is one service fewer and the slice should be thin. Neo4j (adapter B)
+- **Q10. Which adapter does `first-chain` use?** **A10:** PostgreSQL-only (adapter A),
+  because it is one service fewer and the first chain should be thin. Neo4j (adapter B)
   follows in `graph-neo4j` against the same contract tests.
-- **Q11. Outcome metric.** **A11:** packs running end to end on one platform commit.
-  The first milestone's target is one.
+- **Q11. Outcome metric.** **A11:** two numbers. Configurations running end to end on
+  one platform commit (target one at `first-chain`, two at `second-config`), and blocks
+  used by more than one configuration.
 - **Q12. Licence at go-to-market.** **A12:** not decided. MIT stands until then.
 - **Q13. Copyright holder's legal name.** `LICENSE` says "Teamworx Innovations".
   **A13:** that is the correct legal name; correct it here if not.
@@ -55,3 +61,9 @@ number. Numbering is stable: never renumber, and add new questions at the end.
   **A19:** both carry over to this platform and gate a defence pilot, not the build.
 - **Q20. Languages.** **A20:** English and French from the first release, from one
   enabled list, as in Torque.
+- **Q22. Are packs data only?** **A22:** yes. A pack holds no code. A capability the
+  catalogue lacks is added as a generic block through the gates, then configured. The
+  alternative is pack-local plugins, which are faster for one client and are how a
+  platform quietly becomes baked.
+- **Q23. Where do client packs live?** **A23:** outside this repository, one private
+  repository per client. This repository keeps only `examples/` and `tests/packs/`.

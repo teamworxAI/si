@@ -1,6 +1,6 @@
-# Claude Code kickoff: `bootstrap`, then `slice-one`
+# Claude Code kickoff: `bootstrap` through `first-chain`
 
-Version 1, 2026-11-21. Paste everything below the line into Claude Code, run from a
+Version 2, 2026-11-21. Paste everything below the line into Claude Code, run from a
 checkout of `teamworxAI/si` on a machine with Docker.
 
 This could not be run from the cloud session that wrote it: that session's network
@@ -30,8 +30,7 @@ would otherwise make. Then wait.
 
 ## 1. Plan item `bootstrap`
 
-Outcome metric moved: none directly. It unblocks "packs running end to end on one
-platform commit" (Q11).
+Outcome metric moved: none directly. It unblocks both numbers in Q11.
 
 1. Port Torque's harness as it stands at `5429eff`. Keep every rule and gate. Do not
    weaken any.
@@ -58,27 +57,56 @@ platform commit" (Q11).
 8. Prove it: dispatch each role subagent once on a trivial task and keep the
    transcript as evidence. Run both modes of `verify.sh` on a clean checkout.
 
-## 2. Plan item `slice-one`
+## 2. Plan items `block-contracts`, `core-services`, `first-chain`
 
-Outcome metric moved: one pack running end to end, from zero to one.
+The platform is generic (Q21). It ships no use case. Every capability is a block with
+a typed contract, and a use case is a pack that selects and wires blocks. Read
+`docs/architecture.md` section 5 before designing anything.
 
-One thin path through every layer, offline:
+### `block-contracts`
 
-1. Admit one public manual from Torque's source register, with its release basis and
-   checksum recorded. A source with no release basis is refused.
-2. Parse it to typed records with lineage in PostgreSQL. Ingest accounting must add
-   up: parsed + skipped = input.
-3. Build the graph and the vectors through the store interface on adapter A
-   (PostgreSQL only, Q10). Write the contract tests against the interface, not the
-   adapter, so adapter B can pass them later unchanged.
-4. One workflow from the step library: retrieve, compose, ground. Retrieval order is
-   exact, keyword, graph, vector. The ground step drops any sentence whose numbers,
-   units or quotes are not verbatim in a cited record.
-5. One UI panel: ask, with the answer and its cited records side by side.
-6. A trace span around every step, retrieval and model call, with a test asserting it.
-   Inputs and outputs hidden by default.
-7. Model calls go through the gateway only. Model-calling tests skip by name when no
+Outcome metric moved: none directly; it makes the first configuration possible.
+
+1. The block interface: typed input and output, parameter schema, kind (`model` or
+   `deterministic`), a trace span and a provenance record on every run.
+2. The pack loader and validator. A pack that wires incompatible blocks fails to
+   load. A workflow that publishes without a grounding block and a human review block
+   fails to load.
+3. A toy pack under `tests/packs/` with no real domain in it. Every block's contract
+   tests run against it.
+4. A scan that fails the build when any pack name, variant name or pack vocabulary
+   appears in platform code.
+5. Packs are data only (Q22). No pack-local code.
+
+### `core-services`
+
+Records store with lineage and append-only revisions enforced by database triggers,
+the hash-chained audit log with a verify command, tracing, and a thin model gateway
+with the model register. These are shared services, not blocks, and no pack can turn
+them off.
+
+### `first-chain`
+
+Outcome metric moved: configurations running end to end, from zero to one.
+
+The smallest set of blocks that answers a question from one configuration, offline:
+
+1. Blocks: admit, parse PDF text, index (keyword, graph, vector), retrieve, compose,
+   ground, and the ask panel.
+2. The configuration is `examples/maintenance`, on one public manual from Torque's
+   source register, with its release basis and checksum recorded. It is an example
+   and an acceptance test, not part of the platform.
+3. Ingest accounting must add up: parsed + skipped = input.
+4. Graph and vectors go through the store interface on adapter A (PostgreSQL only,
+   Q10). Contract tests are written against the interface, so adapter B can pass them
+   later unchanged.
+5. Retrieval order is exact, keyword, graph, vector. The ground block drops any
+   sentence whose numbers, units or quotes are not verbatim in a cited record.
+6. Model calls go through the gateway only. Model-calling tests skip by name when no
    model host is reachable. CI never calls a model.
+
+Do not build blocks that no configuration uses yet. Each later block arrives with the
+configuration change that needs it.
 
 ## 3. Constraints on every item
 

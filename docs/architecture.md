@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 0.3 |
+| Version | 0.4 |
 | Date | 2026-11-21 |
 | Owner | Adam, Teamworx Innovations |
 | Name | `si`, from the repository `teamworxAI/si`. The product name is undecided. |
@@ -24,7 +24,8 @@ marked **[verify]** were not checked on the date above.
 | 5 | Frontier models through a secure custom deployment in AWS or Azure are a later option only. | A reserved adapter slot in the model gateway. Not built in v1. |
 | 6 | Dual use means civil plus defence customers. | Markings, compartments and controlled-data admission are in the core. |
 | 7 | Graph and vector store: both options, as needed. | One store interface with two adapters (section 4.3). |
-| 8 | The first vertical slice is the `maintenance` pack. | Build sequence, section 9. |
+| 8 | The first reference configuration is `maintenance`. | Build sequence, section 9. |
+| 9 | Generic platform. The ingredients are building blocks, configured for each client and use case. Nothing is baked in. | Section 5. The platform ships no use case. Every use case is configuration over a block catalogue. |
 
 ## 2. What the platform does
 
@@ -32,8 +33,14 @@ Many data sources go through ETL into three stores: records, a graph and vectors
 Configurable workflows answer from those stores. A configurable UI presents them. One
 set of observability, provenance and monitoring runs under all of it.
 
-A use case is a **pack**: configuration, not a fork. Two reference packs prove the
-claim, because they stress different parts:
+The platform itself contains no use case. It is a catalogue of building blocks with
+typed contracts, plus the services every block shares. A use case is a **pack**: a
+configuration that selects blocks, wires them and sets their parameters. A client
+deployment enables one or more packs and sets its own profile. Nothing about
+maintenance manuals, research papers or any other domain lives in platform code.
+
+Two reference configurations are kept as acceptance tests, because they stress
+different blocks. They are examples, not the product:
 
 - `maintenance`: Torque-style. Manuals, parts diagrams linked to parts lists, cited
   answers, reviewed procedure drafts.
@@ -85,7 +92,7 @@ flowchart TB
     X3["Access, markings, egress guard"]
   end
 
-  PACK["Pack: sources, schema, ETL profile, workflow, UI, rules"]
+  PACK["Pack: selects and wires blocks. Schema, sources, pipelines, workflows, UI, rules"]
 
   SRC --> ETL --> ST
   ST --> WF --> UI
@@ -120,10 +127,9 @@ Binding rules carried from the PoCs: ingest accounting adds up (`parsed + skippe
 input`), "unknown" is a typed state, fragments are refused, every field records how it
 got its value, and every derived object stores the version of what it was built from.
 
-ETL profiles are pack data. The `maintenance` profile adds diagram ingestion: callout
-detection, OCR of each callout, linking to parts rows, and coverage reported as two
-identities (`linked + missing = parts items`; `linked + unmatched + unread =
-detections`).
+An ETL pipeline is an ordered list of blocks declared in the pack (section 5). Domain
+extraction, such as linking diagram callouts to parts rows, is a block like any other
+and is present only where a pack asks for it.
 
 ### 4.3 Stores
 
@@ -150,22 +156,14 @@ behaviour only one adapter has.
 
 ### 4.4 Workflow engine
 
-A workflow is an ordered list of steps from a fixed step library, declared in the pack.
-It is not a general graph engine in v1.
+A workflow is an ordered list of blocks declared in the pack. It is not a general
+graph engine in v1. The engine validates the wiring at load time, runs the blocks in
+order, and wraps each in a trace span and a provenance record.
 
-| Step | What it does | Model in the path |
-|---|---|---|
-| retrieve | Exact, keyword, graph and vector passes with access filters | Optional query rewrite |
-| evaluate_rules | Runs ratified rules deterministically | No |
-| compose | Writes wording from retrieved records only | Yes |
-| ground | Drops any sentence whose claims, numbers or quotes are not verbatim in a cited record | No |
-| validate | Pack-specific deterministic checks | No |
-| review | Human approve, edit or reject, audited | No |
-| publish | Makes an approved item visible | No |
-
-Example: `research` uses retrieve, compose, ground. `maintenance` procedure drafts use
-retrieve, evaluate_rules, compose, ground, validate, review, publish. Every step emits a
-trace span and writes provenance.
+Blocks that can change what a user is told come in two kinds, and the engine enforces
+the difference: model blocks may only propose wording, and deterministic blocks decide.
+A workflow that publishes must contain a grounding block and a human review block, or
+the pack fails to load.
 
 ### 4.5 Configurable UI
 
@@ -209,22 +207,73 @@ configuration, in a reserved non-default block, published on loopback only. Stac
 services sit on an internal network. One config file holds the boundary and the egress
 allowlist, enforced at the network and again at startup.
 
-## 5. Pack format
+## 5. Building blocks and configuration
+
+### 5.1 What a block is
+
+A block is one generic capability with:
+
+- a typed input and output contract, so incompatible wiring fails when the pack loads,
+  not at run time;
+- a parameter schema, with every default in versioned configuration;
+- its own tests, including one against a toy pack that has nothing to do with any real
+  domain;
+- a trace span and a provenance record on every run;
+- a declared kind: `model` (may propose) or `deterministic` (may decide).
+
+### 5.2 The catalogue
+
+| Family | Blocks (first set) | Drawn from |
+|---|---|---|
+| Connect | file drop, database or API pull, harvest snapshot bundle | sfu-site, jd-assistant |
+| Admit | release basis, markings, checksum, refusal | Teamworx-Torque |
+| Parse | PDF text, OCR, DOCX and PPTX, tables, HTML, images, speech to text | campus-ai, Teamworx-Torque |
+| Extract | sections and passages, schema-driven entities and relations, table rows to typed records, figure callouts | jd-assistant, Teamworx-Torque |
+| Relate | exact and near duplicate tiers, clustering, linking across records | jd-assistant |
+| Index | keyword, graph, vector | all |
+| Retrieve | exact identifier, keyword, graph traversal, vector, merge, access filter | sfu-site, student-assistant |
+| Decide | rule evaluation, validation, scoring against a rubric | jd-assistant, recruiter-assistant |
+| Word | compose, rewrite field by field, query rewrite, describe an image | all |
+| Check | ground against cited records, quote verification, carry-through | Teamworx-Torque, recruiter-assistant |
+| Review | queue, approve or edit or reject, ratify a rule, publish | jd-assistant |
+| Present | ask with citations, document and figure viewer, graph explorer, review queue, corpus manager, funnel, admin | all |
+| Export | document templates, API | jd-assistant |
+
+Shared services are not blocks and cannot be configured away: the model gateway and
+register, the records store and lineage, the audit chain, tracing, access control and
+the egress guard.
+
+### 5.3 A pack
 
 ```
 packs/<name>/
   pack.yaml          entity and relation types, document types, record fields
-  sources.yaml       connectors and admission rules
-  etl.yaml           parsing and extraction profile, model passes used
-  workflows/*.yaml   ordered steps and their parameters
-  ui.yaml            panels, labels, order
+  sources.yaml       connect and admit blocks, with parameters
+  pipelines/*.yaml   ordered parse, extract, relate and index blocks
+  workflows/*.yaml   ordered retrieve, decide, word, check and review blocks
+  ui.yaml            present blocks, labels, order
   rules/             rule definitions and their register
   profiles/*.yaml    variants: vocabulary, labels, safety wording only
   fixtures/          public test corpus with recorded provenance
 ```
 
-Tests enforce the boundary: no pack name or variant name appears in platform code, and
-the second pack must ship with no change to platform code.
+A pack is data only. If a client needs a capability the catalogue lacks, it is added to
+the catalogue as a generic block, through the same gates, and then configured.
+
+A **deployment profile** sits above packs and is per client: which packs are enabled,
+languages, branding, SSO settings, the graph adapter, the model map and the egress
+allowlist.
+
+### 5.4 How "nothing baked in" is enforced
+
+| Rule | Test or gate |
+|---|---|
+| The platform repository ships no pack outside `examples/` and `tests/packs/` | Repository layout test |
+| No pack name, variant name or domain vocabulary appears in platform code | Scan of string constants and identifiers against every pack's vocabulary |
+| Every block passes its tests on the toy pack | Per-block contract tests |
+| A pack that wires incompatible blocks, or publishes without grounding and review, fails to load | Loader tests |
+| A second reference configuration may add blocks but may not change the core or an existing block's contract | Diff gate on `research` |
+| Both reference configurations pass end to end on the same platform commit | Release gate |
 
 ## 6. Models under the no-Chinese rule
 
@@ -280,18 +329,24 @@ Knowledge-engine built a complete platform and no engine. The sequence below is 
 so that cannot repeat: the first milestone is a thin slice through every layer.
 
 1. `bootstrap`: harness ported from Torque, licence, config file, egress guard.
-2. `slice-one`: one public manual, admit, parse, records, graph and vectors on
-   adapter A, one retrieve-compose-ground workflow, one ask panel, traces. End to end,
-   offline.
-3. `model-register`: origin allowlist, digests, data-class gate.
-4. `pack-format`: move slice-one's specifics into `packs/maintenance`.
-5. `diagrams`: callouts, hotspots, coverage, figure viewer panel.
-6. `review-publish`: rules, review queue, audit chain, procedure drafts.
+2. `block-contracts`: block interface, typed contracts, pack loader and validator, the
+   toy pack, the no-domain-vocabulary scan.
+3. `core-services`: records store with lineage, audit chain, tracing, a thin model
+   gateway with the register.
+4. `first-chain`: the smallest set of blocks that runs end to end from one config:
+   admit, parse PDF text, index, retrieve, compose, ground, ask panel. The config is
+   `examples/maintenance`, on one public manual, offline. Graph and vectors on
+   adapter A.
+5. `ocr-and-figures`: OCR, table rows, figure callouts, the figure viewer.
+6. `decide-and-review`: rule evaluation, validation, review queue, publish.
 7. `graph-neo4j`: adapter B, passing the same contract suite.
 8. `access`: SSO, roles, markings, compartments.
-9. `research-pack`: second pack, zero platform changes allowed.
+9. `second-config`: `examples/research`, under the diff gate in section 5.4.
 10. `release`: offline bundle, SBOM, licence register, signing.
 11. `frontier-slot`: only when a customer needs it.
+
+Item 4 is the guard against building a platform that runs nothing: by then one real
+configuration must answer a question end to end.
 
 Every item names the outcome metric it moves and ships through `verify.sh full`.
 
