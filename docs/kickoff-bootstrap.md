@@ -1,11 +1,20 @@
 # Claude Code kickoff: `bootstrap` through `first-chain`
 
-Version 2, 2026-11-21. Paste everything below the line into Claude Code, run from a
+Version 3, 2026-11-22. Paste everything below the line into Claude Code, run from a
 checkout of `teamworxAI/si` on a machine with Docker.
 
-This could not be run from the cloud session that wrote it: that session's network
-refuses container registries, so no gate could be executed there. Nothing in this
-repository has been verified by a gate yet.
+This could not be run from the cloud sessions that wrote it. Nothing in this
+repository has been verified by a gate yet. What the cloud session of 2026-11-22
+established, so the local run does not repeat it:
+
+- That session had the Docker CLI but no daemon, and its network refused container
+  registries. No gate was executed and no code was written.
+- `humanaxiom/Knowledge-engine` is public and its `HEAD` was `7f8559a`.
+  `humanaxiom/Teamworx-Torque` and `teamworxAI/campus-ai` are private: the local
+  machine's git credentials must be able to read both before `bootstrap` starts.
+- The section 0 questions were already asked. They are recorded with their working
+  assumptions as Q24 to Q31 in `docs/open-questions.md`. The owner has not ruled on
+  them yet.
 
 ---
 
@@ -25,8 +34,15 @@ the code.
 
 ## 0. Before any code
 
-Send me one consolidated message with your open questions and the assumptions you
-would otherwise make. Then wait.
+Q24 to Q31 in `docs/open-questions.md` are the questions a first read of this prompt
+raises, each with a working assumption. Do not ask them again. Send me one
+consolidated message that lists which of A10 to A20 and A24 to A31 you will build on,
+plus any new question and the assumption you would otherwise make, added to the
+register at the end. Then wait.
+
+Before that message, check and report three things: the Docker daemon runs and can
+pull an image, both private reference repositories are readable at the commits in the
+table above, and the working branch.
 
 ## 1. Plan item `bootstrap`
 

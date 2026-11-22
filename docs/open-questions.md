@@ -67,3 +67,25 @@ number. Numbering is stable: never renumber, and add new questions at the end.
   **A19:** both carry over to this platform and gate a defence pilot, not the build.
 - **Q20. Languages.** **A20:** English and French from the first release, from one
   enabled list, as in Torque.
+- **Q24. PostgreSQL version for the records store.** Raised 2026-11-22. **A24:** pin the
+  current stable major at the time `bootstrap` runs, and record it in the ADR that
+  explains how the skeleton differs from Torque's.
+- **Q25. Form of the ADR conversion.** Raised 2026-11-22. **A25:** one ADR per ruling
+  and per component in architecture section 4, numbered from `ADR-SI-001`.
+  `docs/architecture.md` stays as the overview and links to them. No decision changes.
+- **Q26. CI runners.** Raised 2026-11-22. **A26:** GitHub-hosted runners, as Torque's
+  `.github/` at `5429eff` uses, with no self-hosted runner.
+- **Q27. Role subagent transcripts.** Raised 2026-11-22. **A27:** kept where Torque's
+  evidence contract puts evidence, and committed, since they hold no customer data.
+- **Q28. Register entries for the default models.** Raised 2026-11-22. **A28:**
+  `gpt-oss:20b` and `nomic-embed-text` enter as configuration, with register entries
+  marked unapproved until the licence and the publisher's origin are confirmed.
+- **Q29. The public manual for `first-chain`.** Raised 2026-11-22. **A29:** the builder
+  proposes one from Torque's source register at `77f6e3c`, and the owner approves it
+  before anything is ingested.
+- **Q30. Toolchain.** Raised 2026-11-22. **A30:** the Python version, dependency
+  manager and tool versions follow Torque at `5429eff` unchanged. Each port records
+  its source commit in the commit message and in a ports register file.
+- **Q31. Cadence between plan items.** Raised 2026-11-22. **A31:** items run in order,
+  each ends with the status report in the kickoff's section 3, and the builder stops
+  for the owner's go-ahead before the next item.
