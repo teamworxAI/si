@@ -30,6 +30,12 @@ number. Numbering is stable: never renumber, and add new questions at the end.
 - **Q21. Generic or use-case first?** **Resolved 2026-11-21.** Generic platform. The
   ingredients are building blocks, configured for each client and use case. Nothing is
   baked in.
+- **Q22. Are packs data only?** **Resolved 2026-11-21.** Yes. A pack holds no code. A
+  capability the catalogue lacks is added as a generic block through the gates, then
+  configured. No pack-local plugins.
+- **Q23. Where do client packs live?** **Resolved 2026-11-21.** Outside this repository,
+  one private repository per client. This repository keeps only `examples/` and
+  `tests/packs/`.
 
 ## Open
 
@@ -61,9 +67,3 @@ number. Numbering is stable: never renumber, and add new questions at the end.
   **A19:** both carry over to this platform and gate a defence pilot, not the build.
 - **Q20. Languages.** **A20:** English and French from the first release, from one
   enabled list, as in Torque.
-- **Q22. Are packs data only?** **A22:** yes. A pack holds no code. A capability the
-  catalogue lacks is added as a generic block through the gates, then configured. The
-  alternative is pack-local plugins, which are faster for one client and are how a
-  platform quietly becomes baked.
-- **Q23. Where do client packs live?** **A23:** outside this repository, one private
-  repository per client. This repository keeps only `examples/` and `tests/packs/`.
